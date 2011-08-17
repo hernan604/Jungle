@@ -2,16 +2,15 @@ package Jungle;
 use Moose;
 
 sub work_site {
-    my ( $self, $site ) = @_; 
-    warn "WORKING SITE , $site";    
+    my ( $self, $site ) = @_;
+    warn "WORKING SITE , $site";
     my $module = "Sites::$site";
-    Class::MOP::load_class($module );
+    Class::MOP::load_class($module);
     my $spider = $module->new;
     $spider->do_work;
 }
- 
-our $VERSION     = '0.01';
 
+our $VERSION = '0.01';
 
 =head1 NAME
 
@@ -116,7 +115,7 @@ perl(1).
 
 =cut
 
-
 1;
+
 # The preceding line will help the module return a true value
 

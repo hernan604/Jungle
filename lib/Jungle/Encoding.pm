@@ -4,7 +4,7 @@ use Moose::Role;
 use utf8;
 
 sub safe_utf8 {
-    my ( $self, $content ) = @_; 
+    my ( $self, $content ) = @_;
     Encode::Guess->add_suspects(qw/iso-8859-1 utf8/);
     my $decoder = Encode::Guess->guess($content);
     return $content unless ref($decoder);
