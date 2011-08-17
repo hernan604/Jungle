@@ -29,7 +29,7 @@ has filename_csv => (
           . $today->hour
           . $today->minute
           . $today->second
-          . '-Data.News.csv';
+          . '.csv';
         $self->filename_csv($filename);
     },
 );
@@ -63,6 +63,17 @@ has data => (
     },
 );
 
+has csv => (
+    is => 'ro',
+    isa => 'Text::CSV_XS',
+    default => sub {
+        my $csv = Text::CSV_XS->new()
+          or die "Cannot use CSV: " . Text::CSV_XS->error_diag();
+        $csv->eol("\r\n");
+        return $csv;
+    },
+);
+
 sub save {    #saves the data to csv
     my ($self) = @_;
     my @rows = (
@@ -74,13 +85,11 @@ sub save {    #saves the data to csv
             decode_entities( $self->data->content ),
         ],
     );
-    my $csv = Text::CSV_XS->new()
-      or die "Cannot use CSV: " . Text::CSV_XS->error_diag();
-    $csv->eol("\r\n");
-    my $file = './data/' . $self->filename_csv;
+    my $file = './data/NEWS-' . $self->site_name. '-' . $self->filename_csv;
+
     open my $fh, ">>:encoding(utf8)", "$file" or die "$file: $!";
-    $csv->print( $fh, $_ ) for @rows;
-    close $fh or die "new.csv: $!";
+    $self->csv->print( $fh, $_ ) for @rows;
+    close $fh or die "Error on file $file: $!";
 }
 
 1;

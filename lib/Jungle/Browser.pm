@@ -51,11 +51,9 @@ sub browse {
         $url,             #REQUIRED
         $query_params,    #OPTIONAL when defined, its a POST else its GET
     ) = @_;
-    use Data::Dumper;
-    warn Dumper $query_params;
     my $res;
     if ( defined $query_params ) {    #its a POST
-        warn "POSTING ";
+#       warn "POSTING ";
 
         #       $req = HTTP::Request->new( POST => $url );
         #       $req->content_type('application/x-www-form-urlencoded');
@@ -63,7 +61,7 @@ sub browse {
         $res = $self->browser->request( POST $url , $query_params );
     }
     else {
-        warn "GETTING ";
+#       warn "GETTING ";
 
         #        $req = HTTP::Request->new( GET => $url );
         $res = $self->browser->request( GET $url );
@@ -132,15 +130,7 @@ sub normalize_url {
         {    #if url starts with / ( ie. $uti->host is not defined)
                 #receives: '/something/something_else' #notice starts with /
                 #returns: 'http://www.site.com/something/something_else'
-            warn "1. URL................: " . $url;
-            warn "1. CURRENT_PAGE.......: " . $self->current_page;
-            warn "1. STRING URI CURRENT.: " . $uri_current->as_string;
-            warn "1. HOST   URI CURRENT.: " . $uri_current->host;
             $uri_next = URI->new( $uri_current->host . $url );
-
-#$uri_next->host( $uri_current->host ); #sets the uri->host ie. http://www.site.com
-# $uri_next->path( $url ); #$url is ie. /something
-            warn "1. NEW URI " . $uri_next->as_string and sleep 0;
             return $uri_next->as_string;
         }
         elsif ( $url =~ m{^[^/](.+)} ) {
@@ -148,16 +138,8 @@ sub normalize_url {
 
           #receives: 'something/something_else'
           #returns: 'http://www.site.com/optional_path/something/something_else'
-            warn "2. URL................: " . $url;
-            warn "2. CURRENT_PAGE.......: " . $self->current_page;
-            warn "2. STRING URI CURRENT.: " . $uri_current->as_string;
-            warn "2. HOST   URI CURRENT.: " . $uri_current->host;
             $uri_next =
               URI->new( $uri_current->host . $uri_current->path . $url );
-            warn "2. NEW URI " . $uri_next->as_string and sleep 0;
-
-#       $uri_next->host( $uri_current->host ); #sets the uri->host ie. http://www.site.com
-#       $uri_next->path( $uri_current->path . '/' . $url ); #$url is ie. something
             return $uri_next->as_string;
         }
     }
@@ -169,13 +151,7 @@ sub normalize_url {
 #visit the url and load into xpath and redirects to the method
 sub visit {
     my ( $self, $item ) = @_;
-    use Data::Dumper;
-    warn "VISITANDO: ";
-
-    #   warn Dumper $self->url_list and sleep 0;
     warn 'TOTAL URLS IN LIST: ' . scalar @{ $self->url_list } and sleep 0;
-    warn "VISITADAS: ";
-    warn Dumper $self->url_visited and sleep 0;
     return
       if exists $self->url_visited->{ $item->{url} };    #return if not visited
     $self->url_visited->{ $item->{url} } = 1;            #set as visited

@@ -11,7 +11,7 @@ has startpage => (
 
 sub on_start { 
     my ( $self ) = @_; 
-    $self->append( search => $self->startpage , [
+    $self->append( search => $self->startpage , [ #POST EXAMPLE, use [ params => 'something' ] 
         some => 'params',
         test => 'POST',
     ] );

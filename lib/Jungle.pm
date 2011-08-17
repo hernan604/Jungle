@@ -7,6 +7,7 @@ sub work_site {
     my $module = "Sites::$site";
     Class::MOP::load_class($module);
     my $spider = $module->new;
+    $spider->site_name( $site );
     $spider->do_work;
 }
 

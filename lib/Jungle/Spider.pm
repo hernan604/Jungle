@@ -11,9 +11,14 @@ after 'on_start' => sub {
 
 };
 
+has site_name => (
+    is => 'rw',
+    isa => 'Str',
+);
+
 sub do_work {
     my ($self) = @_;
-    warn " STARTING TO CRAWL SITE " . $self->startpage;
+    warn " STARTING TO CRAWL SITE " . $self->site_name;
     $self->on_start();
 
 # inserts our startpage into url list if there is none inserted from $self->on_start
