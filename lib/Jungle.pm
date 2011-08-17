@@ -1,82 +1,97 @@
 package Jungle;
-use strict;
+use Moose;
 
-BEGIN {
-    use Exporter ();
-    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.01';
-    @ISA         = qw(Exporter);
-    #Give a hoot don't pollute, do not export more than needed by default
-    @EXPORT      = qw();
-    @EXPORT_OK   = qw();
-    %EXPORT_TAGS = ();
+sub work_site {
+    my ( $self, $site ) = @_; 
+    warn "WORKING SITE , $site";    
+    my $module = "Sites::$site";
+    Class::MOP::load_class($module );
+    my $spider = $module->new;
+    $spider->do_work;
 }
-
-
-#################### subroutine header begin ####################
-
-=head2 sample_function
-
- Usage     : How to use this function/method
- Purpose   : What it does
- Returns   : What it returns
- Argument  : What it wants to know
- Throws    : Exceptions and other anomolies
- Comment   : This is a sample subroutine header.
-           : It is polite to include more pod and fewer comments.
-
-See Also   : 
-
-=cut
-
-#################### subroutine header end ####################
-
-
-sub new
-{
-    my ($class, %parameters) = @_;
-
-    my $self = bless ({}, ref ($class) || $class);
-
-    return $self;
-}
-
-
-#################### main pod documentation begin ###################
-## Below is the stub of documentation for your module. 
-## You better edit it!
+ 
+our $VERSION     = '0.01';
 
 
 =head1 NAME
 
-Jungle - Jungle is a web spider framework to speed up crawler developments
+  Jungle - Jungle is a web spider framework to speed up crawler developments
 
 =head1 SYNOPSIS
 
   use Jungle;
-  blah blah blah
+  my $spider = Jungle->new();
+  $spider->work_site( 'UOL' ); ### Starts crawling UOL SITE
+
+=head1 WEBSITE SCRIPT SAMPLE
+
+  vim lib/Sites/UOL.pm #will read all the news from this site.
+
+  package Sites::UOL;
+  use Moose;
+  with qw/Jungle::Spider/;
+  with qw/Jungle::Data::News/;
+
+  has startpage => (
+      is => 'rw',
+      isa => 'Str',
+      default => 'http://noticias.uol.com.br/ultimas-noticias/',
+  );
+
+  sub on_start { 
+      my ( $self ) = @_; 
+      $self->append( search => $self->startpage , [
+          some => 'params',
+          test => 'POST',
+      ] );
+      #$self->append( search => $self->startpage );
+  }
+
+  sub search {
+      my ( $self ) = @_; 
+      my $news = $self->tree->findnodes( '//ul[@id="ultnot-list-noticias"]/li/h3/a' );
+      foreach my $item ( $news->get_nodelist ) {
+           my $url = $item->attr( 'href' );
+           $self->prepend( details => $url ); #  append url on end of list
+      }
+  }
+
+  sub on_link {
+      my ( $self, $url ) = @_;
+      if ( $url =~ m{http://noticias.uol.com.br/ultimas-noticias/index(1|2).jhtm}ig ) {
+           $self->prepend( search => $url ); #  append url on end of list
+      }
+  }
+
+  sub details {
+      my ( $self ) = @_; 
+      my $page_title = $self->tree->findvalue( '//div[@id="materia"]//h1' );
+      my $author = $self->tree->findvalue( '//span[@class="autor"]' );
+      my $content_nodes = $self->tree->findnodes( '//div[@id="materia"]/div[@id="texto"]' );
+      my $content;
+      foreach my $node ( $content_nodes->get_nodelist ) {
+          $content = $node;
+      }
+      if ( defined $content and defined $author and defined $page_title ) {
+          my $news_item = {
+              page_title => $page_title,
+              author    => $author,
+              content   => $content->as_HTML,
+          };
+          $self->data->author( $author );
+          $self->data->content( $content->as_HTML );
+          $self->data->title( $page_title );
+
+          $self->data->save;
+      }
+  }
+
+  1;
 
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
-
-Blah blah blah.
-
-
-=head1 USAGE
-
-
-
-=head1 BUGS
-
-
-
-=head1 SUPPORT
-
-
+    Take this as a webspider framework example.
 
 =head1 AUTHOR
 
@@ -88,11 +103,11 @@ Blah blah blah.
 
 =head1 COPYRIGHT
 
-This program is free software; you can redistribute
-it and/or modify it under the same terms as Perl itself.
+    This program is free software; you can redistribute
+    it and/or modify it under the same terms as Perl itself.
 
-The full text of the license can be found in the
-LICENSE file included with this module.
+    The full text of the license can be found in the
+    LICENSE file included with this module.
 
 
 =head1 SEE ALSO
@@ -100,8 +115,6 @@ LICENSE file included with this module.
 perl(1).
 
 =cut
-
-#################### main pod documentation end ###################
 
 
 1;
