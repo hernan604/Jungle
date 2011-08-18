@@ -1,4 +1,4 @@
-package Sites::UOL;
+package Sites::UOL; #has charset UTF8
 use Moose;
 with qw/Jungle::Spider/;
 with qw/Jungle::Data::News/;
