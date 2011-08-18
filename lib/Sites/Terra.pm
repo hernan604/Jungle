@@ -19,18 +19,15 @@ sub search {
     foreach my $item ( $news->get_nodelist ) {
         my $url = $item->attr( 'href' );
         if ( $url =~ m{br\.invertia\.com}ig ) {
-            $self->prepend( details_invertia => $url ); #  append url on end of list
+            $self->prepend( details_invertia => $url ); 
         } else {
-            $self->prepend( details => $url ); #  append url on end of list
+            $self->prepend( details => $url ); 
         }
     }
 }
 
 sub on_link {
     my ( $self, $url ) = @_;
-#   if ( $url =~ m{http://noticias.uol.com.br/ultimas-noticias/index(1|2).jhtm}ig ) {
-#        $self->prepend( search => $url ); #  append url on end of list
-#   }
 }
 
 

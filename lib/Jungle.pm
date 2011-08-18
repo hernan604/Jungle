@@ -21,9 +21,106 @@ our $VERSION = '0.01';
 
   use Jungle;
   my $spider = Jungle->new();
-  $spider->work_site( 'UOL' ); ### Starts crawling UOL SITE
+  $spider->work_site( 'Terra' ); # Starts crawling Terra (is charset iso-8859-1)
+  $spider->work_site( 'UOL' ); # Starts crawling UOL (is charset utf8)
 
-=head1 WEBSITE SCRIPT SAMPLE
+=head1 Spider sample for Terra News
+
+  package Sites::Terra; #has charset iso-8859-1
+  use Moose;
+  with qw/Jungle::Spider/;
+  with qw/Jungle::Data::News/;
+
+  has startpage => (
+      is => 'rw',
+      isa => 'Str',
+      default => 'http://noticias.terra.com.br/ultimasnoticias/0,,EI188,00.html',
+  );
+
+  sub on_start { 
+      my ( $self ) = @_; 
+  }
+
+  sub search {
+      my ( $self ) = @_; 
+      my $news = $self->tree->findnodes( '//div[@class="list articles"]/ol/li/a' );
+      foreach my $item ( $news->get_nodelist ) {
+          my $url = $item->attr( 'href' );
+          if ( $url =~ m{br\.invertia\.com}ig ) {
+              $self->prepend( details_invertia => $url ); 
+          } else {
+              $self->prepend( details => $url ); 
+          }
+      }
+  }
+
+  sub on_link {
+      my ( $self, $url ) = @_;
+  }
+
+
+  sub details_invertia {
+      my ( $self ) = @_; 
+      my $page_title = $self->tree->findvalue( '//title' );
+      my $author_nodes = $self->tree->findnodes( '//dl/dd' );
+      my $author  = '';
+      foreach my $node ( $author_nodes->get_nodelist ) {
+          $author .= $node->as_text . "\n";
+      }
+      my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]' );
+      my $content;
+      foreach my $node ( $content_nodes->get_nodelist ) {
+          $content .= $node->as_HTML;
+      }
+      if ( defined $content and defined $author and defined $page_title ) {
+          my $news_item = {
+              page_title => $page_title,
+              author    => $author,
+              content   => $content,
+          };
+          use Data::Dumper;
+          warn Dumper $news_item;
+          $self->data->author( $author );
+          $self->data->content( $content );
+          $self->data->title( $page_title );
+
+          $self->data->save;
+      }
+  }
+
+
+  sub details {
+      my ( $self ) = @_; 
+      my $page_title = $self->tree->findvalue( '//title' );
+      my $author_nodes = $self->tree->findnodes( '//dl/dd' );
+      my $author  = '';
+      foreach my $node ( $author_nodes->get_nodelist ) {
+          $author .= $node->as_text . "\n";
+      }
+      my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]//p' );
+      my $content;
+      foreach my $node ( $content_nodes->get_nodelist ) {
+          $content .= $node->as_text."\n";
+      }
+      if ( defined $content and defined $author and defined $page_title ) {
+          my $news_item = {
+              page_title => $page_title,
+              author    => $author,
+              content   => $content,
+          };
+          use Data::Dumper;
+          warn Dumper $news_item;
+          $self->data->author( $author );
+          $self->data->content( $content );
+          $self->data->title( $page_title );
+
+          $self->data->save;
+      }
+  }
+
+  1;
+
+=head1 Spider sample for UOL News
 
   vim lib/Sites/UOL.pm #will read all the news from this site.
 
@@ -40,6 +137,7 @@ our $VERSION = '0.01';
 
   sub on_start { 
       my ( $self ) = @_; 
+      #POST EXAMPLE
       $self->append( search => $self->startpage , [
           some => 'params',
           test => 'POST',
@@ -88,6 +186,14 @@ our $VERSION = '0.01';
 
   1;
 
+=head1 RESULTS OF EXPORTED DATA
+
+    The exported data should be avaliable under ./data/* as .csv files
+    The Data class could write directly on the website db, or
+    generate something else than csv. 
+
+    As of now, the extracted data will be saved under ./data/file.csv
+    If you wish to change this behaviour, modify lib/Jungle/Data/News.pm
 
 =head1 DESCRIPTION
 
