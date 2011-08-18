@@ -1,14 +1,13 @@
 package Jungle;
 use Moose;
+use Jungle::Data::News;
 
 sub work_site {
-    my ( $self, $site ) = @_;
-    warn "WORKING SITE , $site";
+    my ( $self, $site ) = @_; 
     my $module = "Sites::$site";
     Class::MOP::load_class($module);
     my $spider = $module->new;
-    $spider->site_name( $site );
-    $spider->do_work;
+    $spider->do_work( $site, Jungle::Data::News->new );
 }
 
 our $VERSION = '0.01';

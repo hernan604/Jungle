@@ -10,5 +10,5 @@ use Jungle;
 my $spider = Jungle->new();
 isa_ok ($spider, 'Jungle');
 #$spider->work_site( 'UOL' ); #Tests UOL WEB SITE which is UTF8
-$spider->work_site( 'Terra' ); #Tests TERRA WEB SITE which is ISO-8859-1
+$spider->work_site( 'Terra', 'Jungle::Data::News' ); #Tests TERRA WEB SITE which is ISO-8859-1
 done_testing();

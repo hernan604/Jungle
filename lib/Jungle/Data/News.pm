@@ -1,5 +1,5 @@
 package Jungle::Data::News;
-use Moose::Role;
+use Moose;
 use Text::CSV_XS;
 use DateTime;
 use Digest::SHA1 qw(sha1_hex);
@@ -34,6 +34,12 @@ has filename_csv => (
     },
 );
 
+has site_name => (
+    is  => 'rw',
+    isa => 'Str',
+    default => '',
+);
+
 has title => (
     is  => 'rw',
     isa => 'Str',
@@ -51,6 +57,11 @@ has content => (
 
 has id_hashed => (
     is  => 'rw',
+    isa => 'Str',
+);
+
+has webpage => (
+    is => 'rw',
     isa => 'Str',
 );
 
@@ -78,8 +89,8 @@ sub save {    #saves the data to csv
     my ($self) = @_;
     my @rows = (
         [
-            sha1_hex( $self->current_page ),
-            $self->current_page,
+            sha1_hex( $self->webpage ),
+            $self->webpage,
             decode_entities( $self->data->title ),
             decode_entities( $self->data->author ),
             decode_entities( $self->data->content ),

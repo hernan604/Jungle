@@ -16,8 +16,16 @@ has site_name => (
     isa => 'Str',
 );
 
+has data => (
+    is => 'rw',
+    isa => 'Any',
+);
+
 sub do_work {
-    my ($self) = @_;
+    my ($self , $site_name, $data_class ) = @_;
+    $self->data( $data_class );
+    $self->site_name( $site_name );
+    $self->data->site_name( $site_name );
     warn " STARTING TO CRAWL SITE " . $self->site_name;
     $self->on_start();
 

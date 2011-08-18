@@ -1,7 +1,6 @@
 package Sites::UOL; #has charset UTF8
 use Moose;
 with qw/Jungle::Spider/;
-with qw/Jungle::Data::News/;
 
 has startpage => (
     is => 'rw',
@@ -50,6 +49,7 @@ sub details {
             content   => $content->as_HTML,
         };
         $self->data->author( $author );
+        $self->data->webpage( $self->current_page );
         $self->data->content( $content->as_HTML );
         $self->data->title( $page_title );
 

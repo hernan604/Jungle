@@ -1,7 +1,6 @@
 package Sites::Terra; #has charset iso-8859-1
 use Moose;
 with qw/Jungle::Spider/;
-with qw/Jungle::Data::News/;
 
 has startpage => (
     is => 'rw',
@@ -55,6 +54,7 @@ sub details_invertia {
         $self->data->author( $author );
         $self->data->content( $content );
         $self->data->title( $page_title );
+        $self->data->webpage( $self->current_page );
 
         $self->data->save;
     }
