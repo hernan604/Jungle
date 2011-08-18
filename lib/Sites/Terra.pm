@@ -49,8 +49,6 @@ sub details_invertia {
             author    => $author,
             content   => $content,
         };
-        use Data::Dumper;
-        warn Dumper $news_item;
         $self->data->author( $author );
         $self->data->content( $content );
         $self->data->title( $page_title );
@@ -80,8 +78,6 @@ sub details {
             author    => $author,
             content   => $content,
         };
-        use Data::Dumper;
-        warn Dumper $news_item;
         $self->data->author( $author );
         $self->data->content( $content );
         $self->data->title( $page_title );

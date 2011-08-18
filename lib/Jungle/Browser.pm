@@ -164,4 +164,36 @@ sub visit {
     $self->$method;    #redirects back to method
 }
 
+
+=head1 NAME
+    
+    Jungle::Browser - Interfaces the websites using LWP
+
+=head1 DESCRIPTION
+
+    Jungle::Browser Uses LWP to interface with the internet
+
+=head1 AUTHOR
+
+    Hernan Lopes
+    CPAN ID: HERNAN
+    Hernan
+    hernanlopes@gmail.com
+    http://github.com/hernan
+
+=head1 COPYRIGHT
+
+    This program is free software; you can redistribute
+    it and/or modify it under the same terms as Perl itself.
+
+    The full text of the license can be found in the
+    LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
+
 1;

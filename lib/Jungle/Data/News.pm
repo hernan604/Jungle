@@ -5,15 +5,6 @@ use DateTime;
 use Digest::SHA1 qw(sha1_hex);
 use HTML::Entities;
 
-# this is a Data EXAMPLE to handle News...
-# 1. News fields should be listed ie:
-#   has title
-#   has author
-#   has content
-#
-# 2. This class should allow some sort of saving data to csv or something,
-# so we can save/append to csv and free from memory
-
 has filename_csv => (
     is      => 'rw',
     isa     => 'Str',
@@ -51,11 +42,6 @@ has author => (
 );
 
 has content => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has id_hashed => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -104,3 +90,39 @@ sub save {    #saves the data to csv
 }
 
 1;
+
+
+=head1 NAME
+    
+    Jungle::Data::News - Handles the extracted data and saves it
+
+=head1 DESCRIPTION
+
+    Jungle::Data::News is an example class as to how the extracted data should
+    be saved. 
+    
+    In this case lib/Sites/XYZ will populate Jungle::Data::News which will
+    then handle the saving of this data.
+
+=head1 AUTHOR
+
+    Hernan Lopes
+    CPAN ID: HERNAN
+    Hernan
+    hernanlopes@gmail.com
+    http://github.com/hernan
+
+=head1 COPYRIGHT
+
+    This program is free software; you can redistribute
+    it and/or modify it under the same terms as Perl itself.
+
+    The full text of the license can be found in the
+    LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut

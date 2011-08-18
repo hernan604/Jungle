@@ -23,7 +23,7 @@ our $VERSION = '0.01';
   $spider->work_site( 'Terra' ); # Starts crawling Terra (is charset iso-8859-1)
   $spider->work_site( 'UOL' ); # Starts crawling UOL (is charset utf8)
 
-=head1 Spider sample for Terra News
+=head1 SAMPLE1: Spider News for terra.com.br
 
   package Sites::Terra; #has charset iso-8859-1
   use Moose;
@@ -119,7 +119,7 @@ our $VERSION = '0.01';
 
   1;
 
-=head1 Spider sample for UOL News
+=head1 SAMPLE2: Spider News for uol.com.br
 
   vim lib/Sites/UOL.pm #will read all the news from this site.
 
@@ -185,14 +185,17 @@ our $VERSION = '0.01';
 
   1;
 
-=head1 RESULTS OF EXPORTED DATA
+=head1 RESULTS OF EXTRACTED DATA
 
-    The exported data should be avaliable under ./data/* as .csv files
-    The Data class could write directly on the website db, or
-    generate something else than csv. 
+    The extracted data should be avaliable under ./data/* as .csv files
+    <L|Jungle::Data::News> handles this process for our news websites
+    The Data class could write directly on the website db (using DBIx::Class) 
+    or it could generate something else than csv. Just modify and pass the
+    class to Jungle.
 
-    As of now, the extracted data will be saved under ./data/file.csv
-    If you wish to change this behaviour, modify lib/Jungle/Data/News.pm
+    As of now, the extracted data will be saved under ./data/file-site.csv
+    If you wish to change this behaviour, modify lib/Jungle/Data/News.pm or
+    create your own classes
 
 =head1 DESCRIPTION
 

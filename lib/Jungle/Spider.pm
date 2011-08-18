@@ -8,7 +8,6 @@ requires 'search';
 
 after 'on_start' => sub {
     my ($self) = @_;
-
 };
 
 has site_name => (
@@ -32,7 +31,7 @@ sub do_work {
 # inserts our startpage into url list if there is none inserted from $self->on_start
     $self->append( search => $self->startpage )
       if ( scalar @{ $self->url_list } == 0 );
-
+ 
     while ( my $item = pop( @{ $self->url_list } ) ) {
         $self->work_on_page($item);
     }
@@ -53,5 +52,38 @@ sub search_page_urls {
           ;    #calls on_link and lets the user append or not to methods
     }
 }
+
+
+=head1 NAME
+    
+    Jungle::Spider - Spider base
+
+=head1 DESCRIPTION
+
+    This is the base of the spider
+
+=head1 AUTHOR
+
+    Hernan Lopes
+    CPAN ID: HERNAN
+    Hernan
+    hernanlopes@gmail.com
+    http://github.com/hernan
+
+=head1 COPYRIGHT
+
+    This program is free software; you can redistribute
+    it and/or modify it under the same terms as Perl itself.
+
+    The full text of the license can be found in the
+    LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
+
 
 1;
