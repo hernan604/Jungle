@@ -3,11 +3,11 @@ use Moose;
 use Jungle::Data::News;
 
 sub work_site {
-    my ( $self, $site ) = @_; 
+    my ( $self, $site, $data_class ) = @_; 
     my $module = "Sites::$site";
     Class::MOP::load_class($module);
     my $spider = $module->new;
-    $spider->do_work( $site, Jungle::Data::News->new );
+    $spider->do_work( $site, $data_class );
 }
 
 our $VERSION = '0.01';
