@@ -18,172 +18,249 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
+  # Frist: create your spider scripts and add them to: lib/Sites/...
+  # and then:
+  # Run tests to have an idea and check out t/001_load.t
+
   use Jungle;
   my $spider = Jungle->new();
-  $spider->work_site( 'Terra' ); # Starts crawling Terra (is charset iso-8859-1)
-  $spider->work_site( 'UOL' ); # Starts crawling UOL (is charset utf8)
+  $spider->work_site( 'NewsSpider::Terra', Jungle::Data::News->new ); #Tests TERRA WEB SITE which is ISO-8859-1
+  $spider->work_site( 'NewsSpider::UOL' , Jungle::Data::News->new ); #Tests UOL WEB SITE which is UTF8
+  $spider->work_site( 'NewsSpider::Estadao', Jungle::Data::News->new ); #Tests Estadao WEB SITE which is UTF8
 
 =head1 SAMPLE1: Spider News for terra.com.br
 
-  package Sites::Terra; #has charset iso-8859-1
-  use Moose;
-  with qw/Jungle::Spider/;
-  with qw/Jungle::Data::News/;
+    package Sites::NewsSpider::Terra; #has charset iso-8859-1
+    use Moose;
+    with qw/Jungle::Spider/;
 
-  has startpage => (
-      is => 'rw',
-      isa => 'Str',
-      default => 'http://noticias.terra.com.br/ultimasnoticias/0,,EI188,00.html',
-  );
+    has startpage => (
+        is => 'rw',
+        isa => 'Str',
+        default => 'http://noticias.terra.com.br/ultimasnoticias/0,,EI188,00.html',
+    );
 
-  sub on_start { 
-      my ( $self ) = @_; 
-  }
+    sub on_start { 
+        my ( $self ) = @_; 
+    }
 
-  sub search {
-      my ( $self ) = @_; 
-      my $news = $self->tree->findnodes( '//div[@class="list articles"]/ol/li/a' );
-      foreach my $item ( $news->get_nodelist ) {
-          my $url = $item->attr( 'href' );
-          if ( $url =~ m{br\.invertia\.com}ig ) {
-              $self->prepend( details_invertia => $url ); 
-          } else {
-              $self->prepend( details => $url ); 
-          }
-      }
-  }
+    sub search {
+        my ( $self ) = @_; 
+        my $news = $self->tree->findnodes( '//div[@class="list articles"]/ol/li/a' );
+        foreach my $item ( $news->get_nodelist ) {
+            my $url = $item->attr( 'href' );
+            if ( $url =~ m{br\.invertia\.com}ig ) {
+                $self->prepend( details_invertia => $url ); 
+            } else {
+                $self->prepend( details => $url ); 
+            }
+        }
+    }
 
-  sub on_link {
-      my ( $self, $url ) = @_;
-  }
-
-
-  sub details_invertia {
-      my ( $self ) = @_; 
-      my $page_title = $self->tree->findvalue( '//title' );
-      my $author_nodes = $self->tree->findnodes( '//dl/dd' );
-      my $author  = '';
-      foreach my $node ( $author_nodes->get_nodelist ) {
-          $author .= $node->as_text . "\n";
-      }
-      my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]' );
-      my $content;
-      foreach my $node ( $content_nodes->get_nodelist ) {
-          $content .= $node->as_HTML;
-      }
-      if ( defined $content and defined $author and defined $page_title ) {
-          my $news_item = {
-              page_title => $page_title,
-              author    => $author,
-              content   => $content,
-          };
-          use Data::Dumper;
-          warn Dumper $news_item;
-          $self->data->author( $author );
-          $self->data->content( $content );
-          $self->data->title( $page_title );
-
-          $self->data->save;
-      }
-  }
+    sub on_link {
+        my ( $self, $url ) = @_;
+        if ( $url =~ m{http://noticias.terra.com.br/ultimasnoticias/0,,EI188-PI(1|2|3|4|5|6),00.html}ig ) {
+             $self->prepend( search => $url ); #  append url on end of list
+        }
+    }
 
 
-  sub details {
-      my ( $self ) = @_; 
-      my $page_title = $self->tree->findvalue( '//title' );
-      my $author_nodes = $self->tree->findnodes( '//dl/dd' );
-      my $author  = '';
-      foreach my $node ( $author_nodes->get_nodelist ) {
-          $author .= $node->as_text . "\n";
-      }
-      my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]//p' );
-      my $content;
-      foreach my $node ( $content_nodes->get_nodelist ) {
-          $content .= $node->as_text."\n";
-      }
-      if ( defined $content and defined $author and defined $page_title ) {
-          my $news_item = {
-              page_title => $page_title,
-              author    => $author,
-              content   => $content,
-          };
-          use Data::Dumper;
-          warn Dumper $news_item;
-          $self->data->author( $author );
-          $self->data->content( $content );
-          $self->data->title( $page_title );
+    sub details_invertia {
+        my ( $self ) = @_; 
+        my $page_title = $self->tree->findvalue( '//title' );
+        my $author_nodes = $self->tree->findnodes( '//dl/dd' );
+        my $author  = '';
+        foreach my $node ( $author_nodes->get_nodelist ) {
+            $author .= $node->as_text . "\n";
+        }
+        my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]' );
+        my $content;
+        foreach my $node ( $content_nodes->get_nodelist ) {
+            $content .= $node->as_HTML;
+        }
+        $self->data->author( $author );
+        $self->data->content( $content );
+        $self->data->title( $page_title );
+        $self->data->webpage( $self->current_page );
+        $self->grab_meta;
+        $self->grab_images;
 
-          $self->data->save;
-      }
-  }
+        $self->data->save;
+    }
 
-  1;
+    sub grab_images {
+        my ( $self ) = @_; 
+        my $images_nodes = $self->tree->findnodes( '//div[contains(@class,"img-article")]/img' );
+        my @images = ();
+        foreach my $im ( $images_nodes->get_nodelist ) {
+            push ( @images, $self->normalize_url( $im->attr( 'src' ) ) );
+        }
+        $self->data->images( \@images );
+    }
+
+
+    sub details {
+        my ( $self ) = @_; 
+        my $author_nodes = $self->tree->findnodes( '//dl/dd' );
+        my $author  = '';
+        foreach my $node ( $author_nodes->get_nodelist ) {
+            $author .= $node->as_text . "\n";
+        }
+        my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]//p' );
+        my $content = '';
+        foreach my $node ( $content_nodes->get_nodelist ) {
+            $content .= $node->as_text."\n";
+        }
+        $self->data->author( $author );
+        $self->data->content( $content );
+        $self->data->title( $self->tree->findvalue( '//title' ) );
+        $self->data->webpage( $self->current_page );
+        $self->grab_meta;
+        $self->grab_images;
+
+        $self->data->save;
+    }
+
+    sub grab_meta {
+        my ( $self ) = @_; 
+        $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+        $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
+    }
+
+    1;
 
 =head1 SAMPLE2: Spider News for uol.com.br
 
-  vim lib/Sites/UOL.pm #will read all the news from this site.
+    package Sites::NewsSpider::UOL; #has charset UTF8
+    use Moose;
+    with qw/Jungle::Spider/;
 
-  package Sites::UOL;
-  use Moose;
-  with qw/Jungle::Spider/;
-  with qw/Jungle::Data::News/;
+    has startpage => (
+        is => 'rw',
+        isa => 'Str',
+        default => 'http://noticias.uol.com.br/ultimas-noticias/',
+    );
 
-  has startpage => (
-      is => 'rw',
-      isa => 'Str',
-      default => 'http://noticias.uol.com.br/ultimas-noticias/',
-  );
+    sub on_start {
+        my ( $self ) = @_; 
+        $self->append( search => $self->startpage , [ #POST EXAMPLE, use [ params => 'something' ] 
+            some => 'params',
+            test => 'POST',
+        ] );
+        #$self->append( search => $self->startpage );
+    }
 
-  sub on_start { 
-      my ( $self ) = @_; 
-      #POST EXAMPLE
-      $self->append( search => $self->startpage , [
-          some => 'params',
-          test => 'POST',
-      ] );
-      #$self->append( search => $self->startpage );
-  }
+    sub search {
+        my ( $self ) = @_; 
+        my $news = $self->tree->findnodes( '//ul[@id="ultnot-list-noticias"]/li/h3/a' );
+        foreach my $item ( $news->get_nodelist ) {
+             my $url = $item->attr( 'href' );
+             if ( $url =~ m{^http://www1.folha.uol.com.br}i ) {
+                 $self->prepend( details_folha => $url ); #  append url on end of list
+             } else {
+                 $self->prepend( details => $url ); #  append url on end of list
+             }
+        }
+    }
 
-  sub search {
-      my ( $self ) = @_; 
-      my $news = $self->tree->findnodes( '//ul[@id="ultnot-list-noticias"]/li/h3/a' );
-      foreach my $item ( $news->get_nodelist ) {
-           my $url = $item->attr( 'href' );
-           $self->prepend( details => $url ); #  append url on end of list
-      }
-  }
+    sub on_link {
+        my ( $self, $url ) = @_;
+        if ( $url =~ m{http://noticias.uol.com.br/ultimas-noticias/index(1|2).jhtm}ig ) {
+             $self->prepend( search => $url ); #  append url on end of list
+        }
+    }
 
-  sub on_link {
-      my ( $self, $url ) = @_;
-      if ( $url =~ m{http://noticias.uol.com.br/ultimas-noticias/index(1|2).jhtm}ig ) {
-           $self->prepend( search => $url ); #  append url on end of list
-      }
-  }
+    sub details {
+        my ( $self ) = @_; 
+        my $content_nodes = $self->tree->findnodes( '//div[@id="texto"]/p' );
+        my $content = '';
+        foreach my $node ( $content_nodes->get_nodelist ) {
+            $content .= $node->as_text."\n";
+        }
+        $self->data->author( $self->tree->findvalue( '//span[@class="autor"]' ) );
+        $self->data->webpage( $self->current_page );
+        $self->data->content( $content );
+        $self->data->title( $self->tree->findvalue( '//div[@id="materia"]//h1' ) );
+        $self->grab_meta;
 
-  sub details {
-      my ( $self ) = @_; 
-      my $page_title = $self->tree->findvalue( '//div[@id="materia"]//h1' );
-      my $author = $self->tree->findvalue( '//span[@class="autor"]' );
-      my $content_nodes = $self->tree->findnodes( '//div[@id="materia"]/div[@id="texto"]' );
-      my $content;
-      foreach my $node ( $content_nodes->get_nodelist ) {
-          $content = $node;
-      }
-      if ( defined $content and defined $author and defined $page_title ) {
-          my $news_item = {
-              page_title => $page_title,
-              author    => $author,
-              content   => $content->as_HTML,
-          };
-          $self->data->author( $author );
-          $self->data->content( $content->as_HTML );
-          $self->data->title( $page_title );
+        $self->data->save;
+    }
 
-          $self->data->save;
-      }
-  }
+    sub details_folha {
+        my ( $self ) = @_; 
+        my $content_nodes = $self->tree->findnodes( '//div[@id="articleNew"]/p' );
+        my $content = '';
+        foreach my $node ( $content_nodes->get_nodelist ) {
+            $content .= $node->as_text."\n";
+        }
+        $self->data->author( $self->tree->findvalue( '//div[@id="articleBy"]/p' ) );
+        $self->data->webpage( $self->current_page );
+        $self->data->content( $content );
+        $self->data->title( $self->tree->findvalue( '//div[@id="articleNew"]/h1' ) );
+        $self->grab_meta;
 
-  1;
+        $self->data->save;
+    }
+
+    sub grab_meta {
+        my ( $self ) = @_; 
+        $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+        $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
+    }
+
+    1;
+
+=head1 SAMPLE3: Spider News for estadao.com.br
+
+    package Sites::NewsSpider::Estadao; #is UTF-8 charset
+    use Moose;
+    with qw(Jungle::Spider);
+
+    has startpage => (
+        is => 'rw',
+        isa => 'Str',
+        default => 'http://www.estadao.com.br/ultimas/',
+    );
+
+    sub on_start { 
+        my ( $self ) = @_; 
+        $self->append( search => $self->startpage );
+    }
+
+    sub search {
+        my ( $self ) = @_; 
+        my $news = $self->tree->findnodes( '//ul/li/h2/a' );
+        foreach my $item ( $news->get_nodelist ) {
+             my $url = $item->attr( 'href' );
+             $self->prepend( detail_noticia => $url ); #  append url on end of list
+        }
+    }
+
+    sub on_link {
+        my ( $self, $url ) = @_;
+        if ( $url =~ m{pagina\.php\?i=(1|2)$}ig ) {
+             $self->prepend( search => $url ); #  append url on end of list
+        }
+    }
+
+    sub detail_noticia {
+        my ( $self ) = @_; 
+        my $content_nodes = $self->tree->findnodes( '//div[@class="texto-noticia"]//div[@class="corpo"]//p' );
+        my $content = '';
+        foreach my $node ( $content_nodes->get_nodelist ) {
+            $content .= $node->as_text. "\n";
+        }
+        $self->data->author( $self->tree->findvalue( '//div[@class="bb-md-noticia-autor"]' ) );
+        $self->data->webpage( $self->current_page );
+        $self->data->content( $content );
+        $self->data->title( $self->tree->findvalue( '//title' ) );
+        $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+        $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
+        $self->data->save;
+    }
+
+    1;
+
 
 =head1 RESULTS OF EXTRACTED DATA
 
