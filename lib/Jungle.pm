@@ -1,6 +1,5 @@
 package Jungle;
 use Moose;
-use Jungle::Data::News;
 
 sub work_site {
     my ( $self, $site, $data_class ) = @_; 
