@@ -1,4 +1,4 @@
-package Sites::UOL; #has charset UTF8
+package Sites::NewsSpider::UOL; #has charset UTF8
 use Moose;
 with qw/Jungle::Spider/;
 
@@ -8,7 +8,7 @@ has startpage => (
     default => 'http://noticias.uol.com.br/ultimas-noticias/',
 );
 
-sub on_start { 
+sub on_start {
     my ( $self ) = @_; 
     $self->append( search => $self->startpage , [ #POST EXAMPLE, use [ params => 'something' ] 
         some => 'params',
@@ -48,6 +48,7 @@ sub details {
     $self->data->webpage( $self->current_page );
     $self->data->content( $content );
     $self->data->title( $self->tree->findvalue( '//div[@id="materia"]//h1' ) );
+    $self->grab_meta;
 
     $self->data->save;
 }
@@ -63,8 +64,15 @@ sub details_folha {
     $self->data->webpage( $self->current_page );
     $self->data->content( $content );
     $self->data->title( $self->tree->findvalue( '//div[@id="articleNew"]/h1' ) );
+    $self->grab_meta;
 
     $self->data->save;
+}
+
+sub grab_meta {
+    my ( $self ) = @_; 
+    $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+    $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
 }
 
 1;

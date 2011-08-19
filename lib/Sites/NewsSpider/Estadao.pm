@@ -1,4 +1,4 @@
-package Sites::Estadao; #is UTF-8 charset
+package Sites::NewsSpider::Estadao; #is UTF-8 charset
 use Moose;
 with qw(Jungle::Spider);
 
@@ -40,6 +40,8 @@ sub detail_noticia {
     $self->data->webpage( $self->current_page );
     $self->data->content( $content );
     $self->data->title( $self->tree->findvalue( '//title' ) );
+    $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+    $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
     $self->data->save;
 }
 

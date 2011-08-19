@@ -1,4 +1,4 @@
-package Sites::Terra; #has charset iso-8859-1
+package Sites::NewsSpider::Terra; #has charset iso-8859-1
 use Moose;
 with qw/Jungle::Spider/;
 
@@ -43,19 +43,13 @@ sub details_invertia {
     foreach my $node ( $content_nodes->get_nodelist ) {
         $content .= $node->as_HTML;
     }
-    if ( defined $content and defined $author and defined $page_title ) {
-        my $news_item = {
-            page_title => $page_title,
-            author    => $author,
-            content   => $content,
-        };
-        $self->data->author( $author );
-        $self->data->content( $content );
-        $self->data->title( $page_title );
-        $self->data->webpage( $self->current_page );
+    $self->data->author( $author );
+    $self->data->content( $content );
+    $self->data->title( $page_title );
+    $self->data->webpage( $self->current_page );
+    $self->grab_meta;
 
-        $self->data->save;
-    }
+    $self->data->save;
 }
 
 
@@ -75,8 +69,15 @@ sub details {
     $self->data->content( $content );
     $self->data->title( $self->tree->findvalue( '//title' ) );
     $self->data->webpage( $self->current_page );
+    $self->grab_meta;
 
     $self->data->save;
+}
+
+sub grab_meta {
+    my ( $self ) = @_; 
+    $self->data->meta_keywords( $self->tree->findvalue( '//meta[@name="keywords"]/@content' ) );
+    $self->data->meta_description( $self->tree->findvalue( '//meta[@name="description"]/@content' ) );
 }
 
 1;

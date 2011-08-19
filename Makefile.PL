@@ -14,6 +14,7 @@ WriteMakefile(
                     'Data::Dumper' => 0,
                     'Moose::Role' => 0,
                     'Encode::Guess' => 0,
+                    'Encode' => 0,
                     'URI' => 0,
                     'WWW::Mechanize' => 0,
                     'LWP::UserAgent' => 0,

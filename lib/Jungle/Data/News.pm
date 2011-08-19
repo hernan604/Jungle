@@ -13,14 +13,7 @@ has filename_csv => (
         my $today = DateTime->now( time_zone => 'local' );
 
         #defines a name for our csv.
-        my $filename =
-            $today->year
-          . $today->month
-          . $today->day
-          . $today->hour
-          . $today->minute
-          . $today->second
-          . '.csv';
+        my $filename = $today->dmy('-').'_' . $today->hms( '-' ) . '.csv';
         $self->filename_csv($filename);
     },
 );
@@ -31,24 +24,18 @@ has site_name => (
     default => '',
 );
 
-has title => (
-    is  => 'rw',
-    isa => 'Str',
-);
+after 'site_name' => sub {
+    my ( $self, $value, $skip_verify ) = @_; 
+    return if ! $value;
+    if ( ! $skip_verify ) {
+        $value =~ s{::}{-}g;
+        $self->site_name( $value, 1 );
+    }
+} ;
 
-has author => (
+has [ qw/title author content webpage meta_keywords meta_description/ ] => (
     is  => 'rw',
-    isa => 'Str',
-);
-
-has content => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has webpage => (
-    is => 'rw',
-    isa => 'Str',
+    isa => 'Any',
 );
 
 has data => (
@@ -80,6 +67,8 @@ sub save {    #saves the data to csv
             decode_entities( $self->data->title ),
             decode_entities( $self->data->author ),
             decode_entities( $self->data->content ),
+            decode_entities( $self->data->meta_keywords ),
+            decode_entities( $self->data->meta_description ),
         ],
     );
     my $file = './data/NEWS-' . $self->site_name. '-' . $self->filename_csv;
