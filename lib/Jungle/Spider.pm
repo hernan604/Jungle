@@ -47,9 +47,12 @@ sub search_page_urls {
     my ($self) = @_;
     my $results = $self->tree->findnodes('//a');
     foreach my $item ( $results->get_nodelist ) {
-        my $url = $self->normalize_url( $item->attr('href') );
-        $self->on_link($url)
-          ;    #calls on_link and lets the user append or not to methods
+        my $url = $item->attr('href');
+        if ( defined $url and $url ne '' ) {
+            my $url = $self->normalize_url( $url );
+            $self->on_link($url)
+              ;    #calls on_link and lets the user append or not to methods
+        }
     }
 }
 
