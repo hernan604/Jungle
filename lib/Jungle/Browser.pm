@@ -120,32 +120,26 @@ sub prepend {
 
 sub normalize_url {
     my ( $self, $url ) = @_;
-    return $url if !$self->current_page;
+    return $url if !$self->current_page or $url =~ m{^http://};
     return $self->current_page if !$url and defined $self->current_page;
-    my $uri_current = URI->new( $self->current_page );
+    my $uri_current = URI->new($self->current_page);
     my $uri_next    = URI->new($url);
 
     if ( !$uri_next->can('host') ) {
-        if ( $url =~ m{^/(.+)} )
-        {    #if url starts with / ( ie. $uti->host is not defined)
-                #receives: '/something/something_else' #notice starts with /
-                #returns: 'http://www.site.com/something/something_else'
+        if ( $url =~ m{^/(.+)} ) {
             $uri_next = URI->new( $uri_current->host . $url );
-            return $uri_next->as_string;
         }
-        elsif ( $url =~ m{^[^/](.+)} ) {
+        else {
             return $uri_current->as_string if ( $url =~ m/(javascript:|^#)/i );
 
-          #receives: 'something/something_else'
-          #returns: 'http://www.site.com/optional_path/something/something_else'
-            $uri_next =
-              URI->new( $uri_current->host . $uri_current->path . $url );
-            return $uri_next->as_string;
+            my @path_segments = $uri_current->path_segments;
+            pop @path_segments;
+            $uri_next = URI->new( $uri_current->host . join( '/', @path_segments ) . '/' . $url );
         }
     }
-    else {
-        return $uri_next->as_string;
-    }
+    return ( $uri_next->as_string =~ m{^http}i )
+      ? ( $uri_next->as_string )
+      : ( 'http://' . $uri_next->as_string );
 }
 
 #visit the url and load into xpath and redirects to the method
