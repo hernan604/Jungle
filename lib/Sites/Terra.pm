@@ -81,6 +81,7 @@ sub details {
         $self->data->author( $author );
         $self->data->content( $content );
         $self->data->title( $page_title );
+        $self->data->webpage( $self->current_page );
 
         $self->data->save;
     }
