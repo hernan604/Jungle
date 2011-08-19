@@ -27,6 +27,9 @@ sub search {
 
 sub on_link {
     my ( $self, $url ) = @_;
+    if ( $url =~ m{http://noticias.terra.com.br/ultimasnoticias/0,,EI188-PI(1|2|3|4|5|6),00.html}ig ) {
+         $self->prepend( search => $url ); #  append url on end of list
+    }
 }
 
 
@@ -48,8 +51,19 @@ sub details_invertia {
     $self->data->title( $page_title );
     $self->data->webpage( $self->current_page );
     $self->grab_meta;
+    $self->grab_images;
 
     $self->data->save;
+}
+
+sub grab_images {
+    my ( $self ) = @_; 
+    my $images_nodes = $self->tree->findnodes( '//div[contains(@class,"img-article")]/img' );
+    my @images = ();
+    foreach my $im ( $images_nodes->get_nodelist ) {
+        push ( @images, $self->normalize_url( $im->attr( 'src' ) ) );
+    }
+    $self->data->images( \@images );
 }
 
 
@@ -70,6 +84,7 @@ sub details {
     $self->data->title( $self->tree->findvalue( '//title' ) );
     $self->data->webpage( $self->current_page );
     $self->grab_meta;
+    $self->grab_images;
 
     $self->data->save;
 }

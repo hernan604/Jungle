@@ -38,6 +38,12 @@ has [ qw/title author content webpage meta_keywords meta_description/ ] => (
     isa => 'Any',
 );
 
+has images => (
+    is => 'rw',
+    isa => 'ArrayRef',
+    default => sub { return []; } ,
+); 
+
 has data => (
     is      => 'rw',
     isa     => 'Jungle::Data::News',
@@ -69,6 +75,7 @@ sub save {    #saves the data to csv
             decode_entities( $self->data->content ),
             decode_entities( $self->data->meta_keywords ),
             decode_entities( $self->data->meta_description ),
+            join( '|' , @{ $self->images } ),
         ],
     );
     my $file = './data/NEWS-' . $self->site_name. '-' . $self->filename_csv;
