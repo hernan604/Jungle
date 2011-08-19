@@ -7,8 +7,10 @@ use Test::More;
 
 BEGIN { use_ok( 'Jungle' ); }
 use Jungle;
+use Jungle::Data::News;
 my $spider = Jungle->new();
 isa_ok ($spider, 'Jungle');
-#$spider->work_site( 'UOL' ); #Tests UOL WEB SITE which is UTF8
-$spider->work_site( 'Terra', 'Jungle::Data::News' ); #Tests TERRA WEB SITE which is ISO-8859-1
+$spider->work_site( 'UOL' , Jungle::Data::News->new ); #Tests UOL WEB SITE which is UTF8
+$spider->work_site( 'Terra', Jungle::Data::News->new ); #Tests TERRA WEB SITE which is ISO-8859-1
+$spider->work_site( 'Estadao', Jungle::Data::News->new ); #Tests Estadao WEB SITE which is UTF8
 done_testing();
