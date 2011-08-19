@@ -22,7 +22,11 @@ sub search {
     my $news = $self->tree->findnodes( '//ul[@id="ultnot-list-noticias"]/li/h3/a' );
     foreach my $item ( $news->get_nodelist ) {
          my $url = $item->attr( 'href' );
-         $self->prepend( details => $url ); #  append url on end of list
+         if ( $url =~ m{^http://www1.folha.uol.com.br}i ) {
+             $self->prepend( details_folha => $url ); #  append url on end of list
+         } else {
+             $self->prepend( details => $url ); #  append url on end of list
+         }
     }
 }
 
@@ -35,26 +39,32 @@ sub on_link {
 
 sub details {
     my ( $self ) = @_; 
-    my $page_title = $self->tree->findvalue( '//div[@id="materia"]//h1' );
-    my $author = $self->tree->findvalue( '//span[@class="autor"]' );
-    my $content_nodes = $self->tree->findnodes( '//div[@id="materia"]/div[@id="texto"]' );
-    my $content;
+    my $content_nodes = $self->tree->findnodes( '//div[@id="texto"]/p' );
+    my $content = '';
     foreach my $node ( $content_nodes->get_nodelist ) {
-        $content = $node;
+        $content .= $node->as_text."\n";
     }
-    if ( defined $content and defined $author and defined $page_title ) {
-        my $news_item = {
-            page_title => $page_title,
-            author    => $author,
-            content   => $content->as_HTML,
-        };
-        $self->data->author( $author );
-        $self->data->webpage( $self->current_page );
-        $self->data->content( $content->as_HTML );
-        $self->data->title( $page_title );
+    $self->data->author( $self->tree->findvalue( '//span[@class="autor"]' ) );
+    $self->data->webpage( $self->current_page );
+    $self->data->content( $content );
+    $self->data->title( $self->tree->findvalue( '//div[@id="materia"]//h1' ) );
 
-        $self->data->save;
+    $self->data->save;
+}
+
+sub details_folha {
+    my ( $self ) = @_; 
+    my $content_nodes = $self->tree->findnodes( '//div[@id="articleNew"]/p' );
+    my $content = '';
+    foreach my $node ( $content_nodes->get_nodelist ) {
+        $content .= $node->as_text."\n";
     }
+    $self->data->author( $self->tree->findvalue( '//div[@id="articleBy"]/p' ) );
+    $self->data->webpage( $self->current_page );
+    $self->data->content( $content );
+    $self->data->title( $self->tree->findvalue( '//div[@id="articleNew"]/h1' ) );
+
+    $self->data->save;
 }
 
 1;

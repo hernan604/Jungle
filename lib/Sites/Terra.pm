@@ -61,30 +61,22 @@ sub details_invertia {
 
 sub details {
     my ( $self ) = @_; 
-    my $page_title = $self->tree->findvalue( '//title' );
     my $author_nodes = $self->tree->findnodes( '//dl/dd' );
     my $author  = '';
     foreach my $node ( $author_nodes->get_nodelist ) {
         $author .= $node->as_text . "\n";
     }
     my $content_nodes = $self->tree->findnodes( '//div[@id="SearchKey_Text1"]//p' );
-    my $content;
+    my $content = '';
     foreach my $node ( $content_nodes->get_nodelist ) {
         $content .= $node->as_text."\n";
     }
-    if ( defined $content and defined $author and defined $page_title ) {
-        my $news_item = {
-            page_title => $page_title,
-            author    => $author,
-            content   => $content,
-        };
-        $self->data->author( $author );
-        $self->data->content( $content );
-        $self->data->title( $page_title );
-        $self->data->webpage( $self->current_page );
+    $self->data->author( $author );
+    $self->data->content( $content );
+    $self->data->title( $self->tree->findvalue( '//title' ) );
+    $self->data->webpage( $self->current_page );
 
-        $self->data->save;
-    }
+    $self->data->save;
 }
 
 1;
