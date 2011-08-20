@@ -40,6 +40,13 @@ has html_content => (
     isa => 'Str',
 );
 
+has passed_key_values => (
+    is  => 'rw',
+    isa => 'HashRef',
+    default => sub { {} },
+);
+
+
 has current_page => (
     is  => 'rw',
     isa => 'Any',
@@ -50,6 +57,7 @@ sub browse {
         $self,
         $url,             #REQUIRED
         $query_params,    #OPTIONAL when defined, its a POST else its GET
+        $passed_key_values, #OPTIONAL holds some key=>values from referer page
     ) = @_;
     my $res;
     if ( defined $query_params ) {    #its a POST
@@ -70,6 +78,11 @@ sub browse {
     #   my $res = $self->browser->request($req);
     if ( $res->is_success ) {
         $self->html_content( $self->safe_utf8( $res->content ) );
+        if ( defined $passed_key_values ) {
+            $self->passed_key_values( $passed_key_values );
+        } else {
+            $self->passed_key_values( {} );
+        }
         $self->parse_xpath;
     }
     else {    #something went wrong... 404 ??
@@ -80,18 +93,30 @@ sub browse {
 
 }
 
+####
+### $method is the perl function that will handle this request
+### $url is the next url to be accessed and handled by $method
+### $query_params is an ARRAYREF, used for POST. 
+###     ie: [ 'formfield1_name' =>'Joe', 'formfield2_age' => 50, ]
+### $rerefer_key_val is an HASHREF used to pass values from one page to the next page 
+###     ie: { stuff_on_page1 => 
+###         'Something from page one that should be used on another page' }
 sub append {
-    my ( $self, $method, $url, $query_params ) = @_;
+    my ( $self, $method, $url, $args ) = @_;
+    my $query_params = $args->{ query_params } if ( exists $args->{ query_params } ) ;
+    my $passed_key_values = $args->{ passed_key_values } if ( exists $args->{ passed_key_values } ) ;
     my $url_normalized = $self->normalize_url($url);
     if (    !exists $self->url_visited->{$url_normalized}
         and !exists $self->url_list_hash->{$url_normalized} )
     {
+        #inserts stuff into @{ $self->url_list } which is handled by 'visit'
         push(
             @{ $self->url_list },
             {
                 method       => $method,
                 url          => $url_normalized,
                 query_params => $query_params,
+                passed_key_values => $passed_key_values,
             }
         );
         $self->url_list_hash->{$url_normalized} = 1;
@@ -99,18 +124,30 @@ sub append {
     warn "APPENDED '$method' : '$url' ";
 }
 
+####
+### $method is the perl function that will handle this request
+### $url is the next url to be accessed and handled by $method
+### $query_params is an ARRAYREF, used for POST. 
+###     ie: [ 'formfield1_name' =>'Joe', 'formfield2_age' => 50, ]
+### $rerefer_key_val is an HASHREF used to pass values from one page to the next page 
+###     ie: { stuff_on_page1 => 
+###         'Something from page one that should be used on another page' }
 sub prepend {
-    my ( $self, $method, $url, $query_params ) = @_;
+    my ( $self, $method, $url, $args ) = @_;
+    my $query_params = $args->{ query_params } if ( exists $args->{ query_params } ) ;
+    my $passed_key_values = $args->{ passed_key_values } if ( exists $args->{ passed_key_values } ) ;
     my $url_normalized = $self->normalize_url($url);
     if (    !exists $self->url_visited->{$url_normalized}
         and !exists $self->url_list_hash->{$url_normalized} )
     {
+        #inserts stuff into @{ $self->url_list } which is handled by 'visit'
         unshift(
             @{ $self->url_list },
             {
                 method       => $method,
                 url          => $url_normalized,
                 query_params => $query_params,
+                passed_key_values => $passed_key_values,
             }
         );
         $self->url_list_hash->{$url_normalized} = 1;
@@ -152,7 +189,7 @@ sub visit {
 
     warn "VISITING $item->{ method } : $item->{ url }";
     $self->current_page( $item->{url} );    #sets the page we are visiting
-    $self->browse( $item->{url}, $item->{query_params} || undef )
+    $self->browse( $item->{url}, $item->{query_params} || undef , $item->{passed_key_values} || undef )
       ;    #access page content and loads to $self->content
     my $method = $item->{method};
     $self->$method;    #redirects back to method

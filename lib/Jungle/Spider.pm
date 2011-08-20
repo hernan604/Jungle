@@ -22,7 +22,7 @@ has data => (
 
 sub do_work {
     my ($self , $site_name, $data_class ) = @_;
-    $self->data( $data_class );
+    $self->data( $data_class ); #this class will treat the extracted website info
     $self->site_name( $site_name );
     $self->data->site_name( $site_name );
     warn " STARTING TO CRAWL SITE " . $self->site_name;
