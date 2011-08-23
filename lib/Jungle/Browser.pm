@@ -4,7 +4,8 @@ use Moose::Role;
 use WWW::Mechanize;
 use LWP::UserAgent;
 use HTTP::Request::Common;
-with qw/Jungle::XPath/;
+with qw/Jungle::Parser::XPath/;
+with qw/Jungle::Parser::XML/;
 with qw/Jungle::Encoding/;
 
 has browser => (
@@ -55,27 +56,17 @@ has current_page => (
 sub browse {
     my (
         $self,
-        $url,             #REQUIRED
-        $query_params,    #OPTIONAL when defined, its a POST else its GET
+        $url,               #REQUIRED
+        $query_params,      #OPTIONAL when defined, its a POST else its GET
         $passed_key_values, #OPTIONAL holds some key=>values from referer page
     ) = @_;
     my $res;
-    if ( defined $query_params ) {    #its a POST
-#       warn "POSTING ";
-
-        #       $req = HTTP::Request->new( POST => $url );
-        #       $req->content_type('application/x-www-form-urlencoded');
-        #       $req->content( $query_params );
+    if ( defined $query_params ) {
         $res = $self->browser->request( POST $url , $query_params );
     }
     else {
-#       warn "GETTING ";
-
-        #        $req = HTTP::Request->new( GET => $url );
         $res = $self->browser->request( GET $url );
     }
-
-    #   my $res = $self->browser->request($req);
     if ( $res->is_success ) {
         $self->html_content( $self->safe_utf8( $res->content ) );
         if ( defined $passed_key_values ) {
@@ -83,7 +74,9 @@ sub browse {
         } else {
             $self->passed_key_values( {} );
         }
-        $self->parse_xpath;
+        $self->parse_xpath if $res->content_type =~ m/html/i;
+        $self->xml( undef ); #clean up
+        $self->parse_xml if $res->content_type =~ m/xml/i;
     }
     else {    #something went wrong... 404 ??
         warn "An error occurred. Response: " . $res->status_line;

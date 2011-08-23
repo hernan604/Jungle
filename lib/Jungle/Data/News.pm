@@ -11,7 +11,6 @@ has filename_csv => (
     default => sub {
         my ($self) = @_;
         my $today = DateTime->now( time_zone => 'local' );
-
         #defines a name for our csv.
         my $filename = $today->dmy('-').'_' . $today->hms( '-' ) . '.csv';
         $self->filename_csv($filename);

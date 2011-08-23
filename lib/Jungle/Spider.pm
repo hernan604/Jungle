@@ -32,7 +32,7 @@ sub do_work {
     $self->append( search => $self->startpage )
       if ( scalar @{ $self->url_list } == 0 );
  
-    while ( my $item = pop( @{ $self->url_list } ) ) {
+    while ( my $item = shift( @{ $self->url_list } ) ) {
         $self->work_on_page($item);
     }
 }

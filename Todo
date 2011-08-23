@@ -1,5 +1,10 @@
 TODO list for Perl module Jungle
 
-- Nothing yet
+- Test crawler for httpS 
+= add cookie support ie:
+  $cookie_jar = HTTP::Cookies->new;
+  $cookie_jar->extract_cookies($res);
+  $cookie_jar->add_cookie_header($req);
+  ...
 
 

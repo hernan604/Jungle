@@ -24,5 +24,8 @@ WriteMakefile(
                     'Digest::SHA1' => 0,
                     'HTML::Entities' => 0,
                     'HTML::TreeBuilder::XPath' => 0,
+                    'XML::XPath' => 0,
+                    'Mozilla::CA' => 0,
+                    'IO::Socket::SSL' => 0,
                     },
 );

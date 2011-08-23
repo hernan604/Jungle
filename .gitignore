@@ -15,3 +15,4 @@ Makefile.old
 data/*
 t/010_vidz.t
 lib/Sites/pr*
+lib/Jungle/Data/Pr*
