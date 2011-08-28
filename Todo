@@ -1,6 +1,5 @@
 TODO list for Perl module Jungle
 
-- Test crawler for httpS 
 = add cookie support ie:
   $cookie_jar = HTTP::Cookies->new;
   $cookie_jar->extract_cookies($res);
