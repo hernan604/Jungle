@@ -150,10 +150,12 @@ sub prepend {
 
 sub normalize_url {
     my ( $self, $url ) = @_;
-    return $url if !$self->current_page or $url =~ m{^http://};
+    return $url if !$self->current_page;
     return $self->current_page if !$url and defined $self->current_page;
     my $uri_current = URI->new($self->current_page);
     my $uri_next    = URI->new($url);
+    
+    return $uri_next->as_string if defined $uri_next->scheme;
 
     if ( !$uri_next->can('host') ) {
         if ( $url =~ m{^/(.+)} ) {
@@ -167,9 +169,7 @@ sub normalize_url {
             $uri_next = URI->new( $uri_current->host . join( '/', @path_segments ) . '/' . $url );
         }
     }
-    return ( $uri_next->as_string =~ m{^http}i )
-      ? ( $uri_next->as_string )
-      : ( 'http://' . $uri_next->as_string );
+    return $uri_current->scheme . '://' . $uri_next->as_string ;
 }
 
 #visit the url and load into xpath and redirects to the method
