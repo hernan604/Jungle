@@ -9,7 +9,6 @@ use Test::More;
 BEGIN { use_ok('Jungle'); }
 use Jungle;
 {
-
     package Test::Spider;
     use Moose;
     with qw(Jungle::Spider);

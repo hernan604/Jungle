@@ -14,6 +14,7 @@ has browser => (
     default => sub {
         my $ua = LWP::UserAgent->new;
         $ua->agent('Windows IE 6');
+        $ua->cookie_jar( {} );
         return $ua;
     },
 );
