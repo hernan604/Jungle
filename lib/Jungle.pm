@@ -3,7 +3,7 @@ use Moose;
 
 sub work_site {
     my ( $self, $site, $data_class ) = @_; 
-    my $module = "Sites::$site";
+    my $module = "$site";
     Class::MOP::load_class($module);
     my $spider = $module->new;
     $spider->do_work( $site, $data_class );

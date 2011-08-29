@@ -1,6 +1,5 @@
 package Jungle::Spider;
 use Moose::Role;
-use feature qw(say);
 with qw/Jungle::Browser/;
 
 requires 'on_start';
@@ -26,7 +25,7 @@ sub do_work {
     $self->data( $data_class ); #this class will treat the extracted website info
     $self->site_name( $site_name );
     $self->data->site_name( $site_name );
-    say " STARTING TO CRAWL SITE " . $self->site_name;
+    warn " STARTING TO CRAWL SITE " . $self->site_name;
     $self->on_start();
 
 # inserts our startpage into url list if there is none inserted from $self->on_start
