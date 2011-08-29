@@ -18,4 +18,9 @@ $spider->work_site( 'NewsSpider::UOL', Jungle::Data::News->new )
   ;    #Tests UOL WEB SITE which is UTF8
 $spider->work_site( 'NewsSpider::Estadao', Jungle::Data::News->new )
   ;    #Tests Estadao WEB SITE which is UTF8
+
+
+my @files = glob './data/NEWS-NewsSpider-*';
+ok( scalar @files >= 3, 'After running the spider, 3 csv files should have been created ' );
+
 done_testing();

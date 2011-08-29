@@ -94,7 +94,7 @@ sub save {    #saves the data to csv
 =head1 DESCRIPTION
 
     Jungle::Data::News is an example class as to how the extracted data should
-    be saved. 
+    be handled. 
     
     In this case lib/Sites/XYZ will populate Jungle::Data::News which will
     then handle the saving of this data.
