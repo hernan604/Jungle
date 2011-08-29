@@ -4,6 +4,7 @@ use Moose::Role;
 use WWW::Mechanize;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use feature qw(say);
 with qw/Jungle::Parser::XPath/;
 with qw/Jungle::Parser::XML/;
 with qw/Jungle::Encoding/;
@@ -81,7 +82,7 @@ sub browse {
         $self->parse_xml if $res->content_type =~ m/xml/i;
     }
     else {                    #something went wrong... 404 ??
-        warn "An error occurred. Response: " . $res->status_line;
+        say "An error occurred. Response: " . $res->status_line;
         $self->html_content('');
         $self->parse_xpath;
     }
@@ -119,7 +120,7 @@ sub append {
         );
         $self->url_list_hash->{$url_normalized} = 1;
     }
-    warn "APPENDED '$method' : '$url' ";
+    say "APPENDED '$method' : '$url' ";
 }
 
 ####
@@ -153,7 +154,7 @@ sub prepend {
         );
         $self->url_list_hash->{$url_normalized} = 1;
     }
-    warn "PREPENDED '$method' : '$url' ";
+    say "PREPENDED '$method' : '$url' ";
 }
 
 sub normalize_url {
@@ -185,12 +186,12 @@ sub normalize_url {
 sub visit {
     my ( $self, $item ) = @_;
     $self->html_content( '' );
-    warn 'TOTAL URLS IN LIST: ' . scalar @{ $self->url_list } and sleep 0;
+    say 'TOTAL URLS IN LIST: ' . scalar @{ $self->url_list } and sleep 0;
     return
       if exists $self->url_visited->{ $item->{url} };    #return if not visited
     $self->url_visited->{ $item->{url} } = 1;            #set as visited
 
-    warn "VISITING $item->{ method } : $item->{ url }";
+    say "VISITING $item->{ method } : $item->{ url }";
     $self->current_page( $item->{url} );    #sets the page we are visiting
     $self->browse(
         $item->{url},

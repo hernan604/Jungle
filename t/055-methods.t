@@ -19,7 +19,6 @@ use Jungle;
     sub prepend_test { }
 }
 my $spider = Test::Spider->new();
-use Data::Dumper;
 ok( 'Any' eq $spider->meta()->get_attribute('current_page')->{isa},
     'validates attr current_page' );
 ok( 'HashRef' eq $spider->meta()->get_attribute('passed_key_values')->{isa},
@@ -46,8 +45,6 @@ $spider->append(
     }
 );
 
-#$spider->prep
-#warn Dumper $spider->url_list;
 my $item = pop @{ $spider->url_list };
 ok( scalar @{ $spider->url_list } == 0,
     'should return 0 total items in url_list after after we just poped' );
@@ -76,7 +73,6 @@ $spider->prepend(
         passed_key_values => { foo => 'bar' },
     }
 );
-warn Dumper $spider->url_list;
 $item = pop @{ $spider->url_list };
 ok( scalar @{ $spider->url_list } == 0,
     'should return 0 total items in url_list after after we just poped' );
