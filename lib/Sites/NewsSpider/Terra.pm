@@ -27,7 +27,7 @@ sub search {
 
 sub on_link {
     my ( $self, $url ) = @_;
-    if ( $url =~ m{http://noticias.terra.com.br/ultimasnoticias/0,,EI188-PI(1|2|3|4|5|6),00.html}ig ) {
+    if ( $url =~ m{http://noticias.terra.com.br/ultimasnoticias/0,,EI188-PI(1|2),00.html}ig ) { # only the first 2 pages to test
          $self->prepend( search => $url ); #  append url on end of list
     }
 }

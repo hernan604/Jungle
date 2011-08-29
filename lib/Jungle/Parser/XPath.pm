@@ -4,7 +4,7 @@ use HTML::TreeBuilder::XPath;
 
 has tree => (
     is  => 'rw',
-    isa => 'Any',
+    isa => 'HTML::TreeBuilder::XPath',
 );
 
 sub parse_xpath {

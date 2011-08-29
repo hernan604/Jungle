@@ -10,10 +10,10 @@ has startpage => (
 
 sub on_start {
     my ( $self ) = @_; 
-    $self->append( search => $self->startpage , [ #POST EXAMPLE, use [ params => 'something' ] 
+    $self->append( search => $self->startpage , { query_params => [ #POST EXAMPLE, use [ params => 'something' ] 
         some => 'params',
         test => 'POST',
-    ] );
+    ] } );
     #$self->append( search => $self->startpage );
 }
 

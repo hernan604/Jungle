@@ -75,6 +75,7 @@ sub browse {
         else {
             $self->passed_key_values( {} );
         }
+#       $self->tree(undef);    #clean up
         $self->parse_xpath if $res->content_type =~ m/html/i;
         $self->xml(undef);    #clean up
         $self->parse_xml if $res->content_type =~ m/xml/i;
@@ -183,6 +184,7 @@ sub normalize_url {
 #visit the url and load into xpath and redirects to the method
 sub visit {
     my ( $self, $item ) = @_;
+    $self->html_content( '' );
     warn 'TOTAL URLS IN LIST: ' . scalar @{ $self->url_list } and sleep 0;
     return
       if exists $self->url_visited->{ $item->{url} };    #return if not visited
