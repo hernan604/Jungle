@@ -2,3 +2,40 @@ Jungle is a web spider framework designed to help you crawl web sites faster.
 
 With Jungle you will be able to add scripts for specific sites and export
 the web site data into csv, or directly into your website database.
+
+                               Jungle                                                                                                                                                                                      
+           ____________________________________________________________
+          /                                                            \
+
+                    Crawler Programming             Data Processing
+                 _______________________          ___________________
+www.page:       /                       \        /                   \
+   _____          $page = http://...htm
+  / ___ | - --=> $page = {                 - --=>    process $pages    _ input
+ | ____ | - --=>   title => 'Page title',  - --=>      ______________ |
+ | ____ | - --=>   url => $url,            - --=>     /             / |  work
+ |______|          ... everything                    /  / /  /   / />-+-  in
+                   from the page                     \____________/   |  data
+                   to hash with xpath..            save to db,hdd,etc | 
+                   }                               calculate things   |_ save
+                                                   use your own plugins
+                   get page(s) and convert         to manage page data.
+                   to hash. XPath is avail            the sky is the limit!
+                   to aid html data 
+                   extraction.
+                   You can create a list
+                   of urls to be crawled,
+                   or you can add url on
+                   runtime easily.
+
+                   Page can be:
+                   - HTML ( w/ xpath )
+                   - XML  ( w/ xpath )
+                   - Text
+
+Jungle will automatically process your webpages based on their type. This means
+when you use jungle, it will take care of which browser interface will connect to the
+internet, and it will automagically use the proper Xpath engine based on the input 
+which can be HTML, XML or text. Images can be retrieved too. You can always access 
+the raw content of the request.
+And, you can create a data layer to be run upon your webpages crawled results.

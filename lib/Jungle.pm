@@ -9,7 +9,7 @@ sub work_site {
     $spider->do_work( $site, $data_class );
 }
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 

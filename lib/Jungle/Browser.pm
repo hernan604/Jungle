@@ -4,6 +4,8 @@ use Moose::Role;
 use WWW::Mechanize;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use HTTP::Cookies;
+use Data::Printer;
 with qw/Jungle::Parser::XPath/;
 with qw/Jungle::Parser::XML/;
 with qw/Jungle::Encoding/;
@@ -13,8 +15,10 @@ has browser => (
     isa     => 'LWP::UserAgent',
     default => sub {
         my $ua = LWP::UserAgent->new;
+        $ua->requests_redirectable( ['GET', 'HEAD', 'POST'] );
         $ua->agent('Windows IE 6');
-        $ua->cookie_jar( {} );
+        my $cookie_jar = HTTP::Cookies->new( );
+        $ua->cookie_jar( $cookie_jar );
         return $ua;
     },
 );
@@ -58,7 +62,7 @@ sub browse {
         $self,
         $url,                 #REQUIRED
         $query_params,        #OPTIONAL when defined, its a POST else its GET
-        $passed_key_values,   #OPTIONAL holds some key=>values from referer page
+#       $passed_key_values,   #OPTIONAL holds some key=>values from referer page
     ) = @_;
     my $res;
     if ( defined $query_params ) {
@@ -69,12 +73,12 @@ sub browse {
     }
     if ( $res->is_success ) {
         $self->html_content( $self->safe_utf8( $res->content ) );
-        if ( defined $passed_key_values ) {
-            $self->passed_key_values($passed_key_values);
-        }
-        else {
-            $self->passed_key_values( {} );
-        }
+#       if ( defined $passed_key_values ) {
+#           $self->passed_key_values($passed_key_values);
+#       }
+#       else {
+#           $self->passed_key_values( {} );
+#       }
 #       $self->tree(undef);    #clean up
         $self->parse_xpath if $res->content_type =~ m/html/i;
         $self->xml(undef);    #clean up
@@ -114,12 +118,18 @@ sub append {
                 method            => $method,
                 url               => $url_normalized,
                 query_params      => $query_params,
-                passed_key_values => $passed_key_values,
+                passed_key_values => ($passed_key_values||undef),
             }
         );
         $self->url_list_hash->{$url_normalized} = 1;
+        warn "APPENDED '$method' : '$url' ";
+        if ( defined $passed_key_values ) {
+            warn "with passed_key_values: ";
+            p $passed_key_values;
+        }
+    } else {
+      warn "COULD --NOT-- APPENDED '$method' : '$url' ";
     }
-    warn "APPENDED '$method' : '$url' ";
 }
 
 ####
@@ -148,12 +158,14 @@ sub prepend {
                 method            => $method,
                 url               => $url_normalized,
                 query_params      => $query_params,
-                passed_key_values => $passed_key_values,
+                passed_key_values => ($passed_key_values||undef),
             }
         );
         $self->url_list_hash->{$url_normalized} = 1;
+        warn "PREPENDED '$method' : '$url' ";
+    } else {
+      warn "COULD --NOT-- PREPENDED '$method' : '$url' ";
     }
-    warn "PREPENDED '$method' : '$url' ";
 }
 
 sub normalize_url {
@@ -192,10 +204,15 @@ sub visit {
 
     warn "VISITING $item->{ method } : $item->{ url }";
     $self->current_page( $item->{url} );    #sets the page we are visiting
+    if ( defined $item->{passed_key_values} ) {
+      $self->passed_key_values( $item->{passed_key_values} );
+    } else {
+      $self->passed_key_values( {} );
+    }
     $self->browse(
         $item->{url},
         $item->{query_params} || undef,
-        $item->{passed_key_values} || undef
+#       $item->{passed_key_values} || undef
     );    #access page content and loads to $self->content
     my $method = $item->{method};
     $self->$method;    #redirects back to method
