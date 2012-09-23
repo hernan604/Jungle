@@ -72,6 +72,7 @@ sub browse {
         $res = $self->browser->request( GET $url );
     }
     if ( $res->is_success ) {
+        $self->current_page( $res->base );
         $self->html_content( $self->safe_utf8( $res->content ) );
 #       if ( defined $passed_key_values ) {
 #           $self->passed_key_values($passed_key_values);
