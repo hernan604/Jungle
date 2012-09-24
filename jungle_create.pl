@@ -42,6 +42,7 @@ sub render {
   $self->config( $config );
   $self->create_dir( $self->config->{ path }->{ destino } );
   $self->create_dir( $self->config->{ path }->{ destino } . '/scripts' );
+  $self->create_dir( $self->config->{ path }->{ destino } . '/data' );
 
   $config->{ app_as_directory } = $config->{ name } ;
   $config->{ app_as_directory } =~ s{::}{/}g;
