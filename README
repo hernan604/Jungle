@@ -1,9 +1,11 @@
+*** DEPRECATED, use HTML::Robot::Scrapper instead
+
 Jungle is a web spider framework designed to help you crawl web sites faster.
 
 With Jungle you will be able to add scripts for specific sites and export
 the web site data into csv, or directly into your website database.
 
-                               Jungle                                                                                                                                                                                      
+               Jungle  *** NOW use HTML::Robot::Scrapper instead.. they are very similar. 
            ____________________________________________________________
           /                                                            \
 
